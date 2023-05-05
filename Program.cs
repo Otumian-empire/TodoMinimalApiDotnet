@@ -42,21 +42,29 @@ static async Task<IResult> CreateTodoItem(TodoModel todo, TodoDb db)
     db.TodoTable.Add(todo);
     await db.SaveChangesAsync();
 
-    return TypedResults.Created($"/{todo.Id}", todo);
+    /* return TypedResults.Created($"/{todo.Id}", todo); */
+    return TypedResults.Created($"/{todo.Id}", new TodoDTO(todo));
+
 }
 
 static async Task<IResult> GetAllTodoItems(TodoDb db)
 {
-    var result = await db.TodoTable.ToListAsync();
+    /* var result = await db.TodoTable.ToListAsync(); */
+    var result = await db.TodoTable.Select((x => new TodoDTO(x))).ToArrayAsync();
 
     return TypedResults.Ok(result);
 }
 
 static async Task<IResult> ReadAllCompletedTodItems(TodoDb db)
 {
-    var result = await db.TodoTable
+    /* var result = await db.TodoTable
             .Where(row => row.IsComplete)
-            .ToListAsync();
+            .ToListAsync(); */
+
+    var result = await db.TodoTable
+        .Where(row => row.IsComplete)
+        .Select(x => new TodoDTO(x))
+        .ToArrayAsync();
 
     return TypedResults.Ok(result);
 }
@@ -66,7 +74,8 @@ static async Task<IResult> ReadTodoItemById(int id, TodoDb db)
     var todo = await db.TodoTable.FindAsync(id);
 
     if (todo is not null)
-        return TypedResults.Ok(todo);
+        /* return TypedResults.Ok(todo); */
+        return TypedResults.Ok(new TodoDTO(todo));
 
     return TypedResults.NotFound();
 }
@@ -83,7 +92,7 @@ static async Task<IResult> UpdateTodoItemById(int id, TodoModel newTodo, TodoDb 
     await db.SaveChangesAsync();
 
     // return TypedResults.NoContent();
-    return TypedResults.Ok(todo);
+    return TypedResults.Ok(new TodoDTO(todo));
 }
 
 static async Task<IResult> DeleteTodoItemById(int id, TodoDb db)
@@ -95,5 +104,6 @@ static async Task<IResult> DeleteTodoItemById(int id, TodoDb db)
     db.TodoTable.Remove(todo);
     await db.SaveChangesAsync();
 
-    return TypedResults.Ok(todo);
+    /* return TypedResults.Ok(todo); */
+    return TypedResults.Ok(new TodoDTO(todo));
 }
