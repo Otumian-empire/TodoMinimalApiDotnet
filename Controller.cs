@@ -72,6 +72,4 @@ public class Controller
         /* return TypedResults.Ok(todo); */
         return TypedResults.Ok(new TodoDTO(todo));
     }
-
-
 }
